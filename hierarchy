@@ -1,0 +1,59 @@
+// Download code folder here:  https://drive.google.com/file/d/1luQ0m76r1V6u5dqu6uyS8rHKBn_r_JL-/view?usp=sharing
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+CVImage cvimg;
+PImage img;
+ArrayList<Integer> intg = new ArrayList<Integer>();
+
+void setup() {
+  size(1200, 600);
+  System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+  img = loadImage("hierarchy4.png");
+  //filter(INVERT);
+  cvimg = new CVImage(img.width, img.height);
+  noLoop();
+}
+
+void draw() {
+  background(0);
+  cvimg.copyTo(img);
+  Mat tmp1 = new Mat();
+  Imgproc.blur(cvimg.getGrey(), tmp1, new Size(3, 3));
+  ArrayList<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+  Mat hierarchy = new Mat();
+  // Hierarchy modes
+  // Imgproc.RETR_LIST
+  // Imgproc.RETR_EXTERNAL
+  // Imgproc.RETR_CCOMP
+  Imgproc.findContours(tmp1, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
+  image(img, 0, 0);
+  pushStyle();
+  stroke(255);
+  println("Next, Previous, First_Child, Parent");
+  for (int i = 0; i < contours.size(); i++) {
+    Point [] pts = contours.get(i).toArray();
+    int parent = (int)hierarchy.get(0, i)[3];     
+    print("["+i+"] ");
+    for (int j = 0; j < 4; j++) print(hierarchy.get(0, i)[j]+"  ");
+    println();
+    // parent -1 implies it is the outer contour.
+    if (parent == -1) {
+      fill(255); // outer contour
+    } else {
+      fill(0);
+    }
+    beginShape();
+    for (Point p : pts) {
+      vertex((float)p.x+img.width, (float)p.y);
+    }
+    endShape(CLOSE);
+  }
+  // int cols = hierarchy.cols();
+  // int rows = hierarchy.rows();
+  popStyle();
+  tmp1.release();
+  hierarchy.release();
+}
+
