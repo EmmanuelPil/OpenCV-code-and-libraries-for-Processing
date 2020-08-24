@@ -1,0 +1,40 @@
+PImage source;
+CVImage img, img_out;
+
+void setup() {
+  size(1200, 800);
+  System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+  source = loadImage("house.jpg");
+  img = new CVImage(source.width, source.height);
+  img.copyTo(source);
+  noLoop();
+}
+
+void draw() {
+  background(0);
+  Mat src = img.getGrey(); // src  input image.
+  Mat dst = new Mat();     // dst  output image of the same size and the same number of channels as src.
+  int ddepth = 0; //  output image depth(see cv.combinations); 
+  int dx = 1;     // order of the derivative x.
+  int dy = 0;     // order of the derivative y.
+  int ksize = 1;  // size of the extended Sobel kernel, it must be 1, 3, 5, or 7.
+  int scale = 6;  // optional scale factor for the computed derivative values.
+  int delta = 1;  // optional delta value that is added to the results prior to storing them in dst.
+  Imgproc.Sobel(src, dst, ddepth, dx, dy, ksize, scale, delta, Core.BORDER_DEFAULT); 
+  img_out = new CVImage(img.width, img.height);
+  img_out.copyTo(dst);
+  image(img_out, 0, 0);
+  filter(INVERT);
+  src.release();
+  dst.release();
+}
+// borderType pixel extrapolation method(see cv.BorderTypes).
+// int BORDER_CONSTANT = 0;
+// int BORDER_REPLICATE = 1;
+// int BORDER_REFLECT = 2;
+// int BORDER_WRAP = 3;
+// int BORDER_REFLECT_101 = 4;
+// int BORDER_TRANSPARENT = 5;
+// int BORDER_REFLECT101 = BORDER_REFLECT_101;
+// int BORDER_DEFAULT = BORDER_REFLECT_101;
+// int BORDER_ISOLATED = 16;
