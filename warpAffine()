@@ -1,0 +1,37 @@
+// Download code folder here:  https://drive.google.com/file/d/1luQ0m76r1V6u5dqu6uyS8rHKBn_r_JL-/view?usp=sharing
+
+import org.opencv.core.*;
+import org.opencv.imgproc.*;
+CVImage img_out;
+Mat in;
+
+PImage img;
+Point center;
+float angle;
+
+void setup() {
+  size(700, 600);
+  System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+  img = loadImage("woman_face.png");
+  CVImage img_in = new CVImage(img.width, img.height);
+  img_out = new CVImage(img_in.width, img_in.height);
+  img_in.copyTo(img);
+  in = img_in.getBGR();
+  center = new Point(img.width/2, img.height/2);
+  angle = 0;
+}
+
+void draw() {
+  Mat rot = Imgproc.getRotationMatrix2D(center, angle, 1.0);
+  Mat out = new Mat(in.size(), in.type());
+  Imgproc.warpAffine(in, out, rot, out.size());
+  img_out.copyTo(out);
+  tint(255, 255);
+  image(img, 0, 0);
+  tint(255, 10);
+  image(img_out, img.width, 0);
+  angle += 0.5;
+  out.release();
+  rot.release();
+  if(angle > 360) noLoop();
+}
